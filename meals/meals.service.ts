@@ -112,7 +112,6 @@ export class MealsService {
           meal[key] = upateMealDto[key];
         }
       });
-      console.log(meal);
       const row = await this.mealsRepository.update(meal.id, meal);
       if (row.affected !== 0) {
         return '修改成功';

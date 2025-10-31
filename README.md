@@ -4,16 +4,28 @@
 
 ## 📋 项目简介
 
-美味蟹堡是一个全功能的餐厅管理系统后端，提供完整的业务功能支持，包括用户管理、餐品管理、订单处理、数据统计等核心功能。系统采用前后端分离架构，支持小程序端和后台管理端两种用户角色。
+美味蟹堡是一个基于 NestJS 构建的餐厅/外卖管理系统后端 API。系统采用前后端分离架构，支持小程序用户端（C端）和后台管理端两种用户角色。
+
+**当前开发状态：**
+- ✅ **小程序用户端（C端）**：功能基本完整
+- 🚧 **后台管理端**：核心功能已实现，部分功能待完善
 
 ## ✨ 主要特性
 
 - 🔐 **双重身份认证系统**：支持小程序用户和管理员角色，使用 JWT + Redis 实现安全认证
-- 📱 **小程序用户功能**：注册、登录（账户/手机号）、个人信息管理、订单查询等
-- 👨‍💼 **后台管理功能**：管理员登录、餐品管理、分类管理、订单管理、轮播图管理等
-- 🍔 **完整的餐饮业务**：餐品分类、餐品信息（价格、库存、销量）、上架下架等
+- 📱 **小程序用户端（C端）**：
+  - ✅ 用户注册、登录（账户/手机号验证码）
+  - ✅ 个人信息管理（查看、修改、头像上传）
+  - ✅ 订单管理（创建、查询、状态更新）
+  - ✅ 密码修改、退出登录、账号注销
+- 👨‍💼 **后台管理端**：
+  - ✅ 管理员登录、注册、个人信息管理
+  - ✅ 分类管理（增删改查）
+  - ✅ 餐品管理（创建、修改、删除、图片上传）
+  - ✅ 轮播图管理（增删改查、排序、上传）
+  - 🚧 订单管理（部分功能待完善）
+  - 🚧 餐品列表查询接口（待补充）
 - 📦 **订单系统**：订单创建、订单详情、订单状态管理（待支付、制作中、已完成、已取消）
-- 🎨 **内容管理**：轮播图管理、图片上传功能
 - 📧 **短信验证**：集成阿里云短信服务，支持手机号验证码登录
 - ⚡ **高性能缓存**：使用 Redis 实现 Token 缓存和会话管理
 - 🛡️ **安全防护**：密码加密（bcrypt）、请求验证（class-validator）、全局异常处理
@@ -125,6 +137,10 @@ yarn install
 API_PREFIX=/api
 NODE_ENV=development
 
+# 服务器配置
+PORT=8311
+BASE_URL=http://localhost:8311
+
 # 数据库配置
 DB_TYPE=mysql
 DB_HOST=localhost
@@ -146,11 +162,13 @@ SESSION_SECRET=your_session_secret
 SESSION_NAME=session_id
 
 # 阿里云短信配置（可选）
-SMS_ACCESS_KEY_ID=your_access_key_id
-SMS_ACCESS_KEY_SECRET=your_access_key_secret
-SMS_SIGN_NAME=your_sign_name
-SMS_TEMPLATE_CODE=your_template_code
+ACCESSKEYID=your_access_key_id
+ACCESSKEYSECRET=your_access_key_secret
+Alicloud_SINGNAME=your_sign_name
+Alicloud_TEMPLATECODE=your_template_code
 ```
+
+> 💡 **提示**：可以复制项目根目录下的 `.env.example` 文件为 `.env.development` 或 `.env.production`，然后修改相应的配置值。
 
 ### 运行项目
 
@@ -211,18 +229,43 @@ POST /api/v1/user/miniProgram/loginByPhone
 Body: { phone, verificationCode }
 ```
 
+#### 获取用户信息
+```
+GET /api/v1/user/miniProgram/getUserInfo
+Headers: Authorization: Bearer {token}
+```
+
 #### 更新用户信息
 ```
-PATCH /api/v1/user/miniProgram/updateInfo
+PATCH /api/v1/user/miniProgram/updateUserInfo
 Headers: Authorization: Bearer {token}
-Body: { nickname, avatar, ... }
+Body: { nickName, avatarUrl, gender, birthday }
 ```
 
 #### 修改密码
 ```
-PATCH /api/v1/user/miniProgram/updatePassword
+POST /api/v1/user/miniProgram/updatePassword
 Headers: Authorization: Bearer {token}
-Body: { oldPassword, newPassword }
+Body: { oldPassword, newPassword, rePassword }
+```
+
+#### 上传头像
+```
+POST /api/v1/user/upload/avatar
+Headers: Authorization: Bearer {token}
+Body: FormData { file }
+```
+
+#### 退出登录
+```
+POST /api/v1/user/miniProgram/loginOut
+Headers: Authorization: Bearer {token}
+```
+
+#### 账号注销
+```
+POST /api/v1/user/miniProgram/singOut
+Headers: Authorization: Bearer {token}
 ```
 
 ### 管理员接口
@@ -230,13 +273,54 @@ Body: { oldPassword, newPassword }
 #### 管理员注册
 ```
 POST /api/v1/role/register
-Body: { phone, password }
+Body: { phone, password, code }
+注意：需要先获取图形验证码
 ```
 
 #### 管理员登录
 ```
 POST /api/v1/role/login
-Body: { phone, password }
+Body: { phone, password, code }
+注意：需要先获取图形验证码
+```
+
+#### 获取管理员信息
+```
+GET /api/v1/role/getRoleInfo
+Headers: Authorization: Bearer {token}
+```
+
+#### 更新管理员信息
+```
+PATCH /api/v1/role/updateRoleInfo
+Headers: Authorization: Bearer {token}
+Body: { nickName, avatarUrl }
+```
+
+#### 修改管理员密码
+```
+POST /api/v1/role/updatePassword
+Headers: Authorization: Bearer {token}
+Body: { oldPassword, newPassword, rePassword }
+```
+
+#### 上传管理员头像
+```
+POST /api/v1/role/upload
+Headers: Authorization: Bearer {token}
+Body: FormData { file }
+```
+
+#### 退出登录
+```
+POST /api/v1/role/loginOut
+Headers: Authorization: Bearer {token}
+```
+
+#### 账号注销
+```
+POST /api/v1/role/singOut
+Headers: Authorization: Bearer {token}
 ```
 
 ### 分类管理
@@ -256,13 +340,14 @@ Headers: Authorization: Bearer {token}
 
 #### 更新分类
 ```
-PATCH /api/v1/category/:id
+PATCH /api/v1/category
 Headers: Authorization: Bearer {token}
+Body: { categoryId, name, status }
 ```
 
 #### 删除分类
 ```
-DELETE /api/v1/category/:id
+DELETE /api/v1/category?categoryId={id}
 Headers: Authorization: Bearer {token}
 ```
 
@@ -272,47 +357,71 @@ Headers: Authorization: Bearer {token}
 ```
 POST /api/v1/meals
 Headers: Authorization: Bearer {token}
-Body: { name, price, originalPrice, desc, category_id, ... }
+Body: { name, price, originalPrice, desc, categoryName, ... }
 ```
 
 #### 获取餐品列表
 ```
+🚧 待实现
 GET /api/v1/meals
 Headers: Authorization: Bearer {token}
 ```
 
 #### 更新餐品
 ```
-PATCH /api/v1/meals/:id
+PATCH /api/v1/meals
 Headers: Authorization: Bearer {token}
+Body: { mealId, name, price, ... }
 ```
 
 #### 删除餐品
 ```
-DELETE /api/v1/meals/:id
+DELETE /api/v1/meals?mealsId={id}
 Headers: Authorization: Bearer {token}
+```
+
+#### 上传餐品图片
+```
+POST /api/v1/meals/upload
+Headers: Authorization: Bearer {token}
+Body: FormData { file }
 ```
 
 ### 订单管理
 
-#### 创建订单
+#### 创建订单（小程序用户）
 ```
 POST /api/v1/order
 Headers: Authorization: Bearer {token}
-Body: { meals: [{ meal_id, quantity }], total_price }
+Body: { meals: [{ id, quantity, price }], diningType, remark }
 ```
 
-#### 获取订单列表
+#### 获取订单列表（小程序用户）
 ```
-GET /api/v1/order
+GET /api/v1/order?state={status}
+Headers: Authorization: Bearer {token}
+Query: state (0:待支付 1:制作中 2:已完成 3:已取消 4:全部)
+```
+
+#### 获取订单详情
+```
+GET /api/v1/order/:id
 Headers: Authorization: Bearer {token}
 ```
 
-#### 更新订单状态
+#### 更新订单状态（小程序用户）
 ```
-PATCH /api/v1/order/:id
+PATCH /api/v1/order
 Headers: Authorization: Bearer {token}
-Body: { status }
+Body: { state: number, orderId: number }
+```
+
+#### 管理后台订单管理
+```
+🚧 待完善
+- 查看所有订单
+- 订单统计
+- 订单筛选等功能
 ```
 
 ### 轮播图管理

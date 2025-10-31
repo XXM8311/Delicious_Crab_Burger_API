@@ -19,7 +19,7 @@ export class AppService {
       this.smsService.sendSms(phone, code);
       return {
         code: 200,
-        data: code + '短信已发送，一分钟内有效，请注意查收',
+        data: '短信验证码已发送，一分钟内有效，请注意查收',
       };
     } else {
       return new BadRequestException('短信已发送，请稍后再试');

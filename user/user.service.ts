@@ -283,7 +283,6 @@ export class UserService {
         { user },
         { status: 0 },
       );
-      console.log(row);
       if (row.affected !== 0) {
         return {
           code: 200,

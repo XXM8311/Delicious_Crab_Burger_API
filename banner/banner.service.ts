@@ -39,7 +39,6 @@ export class BannerService {
       newBanner.status = 1;
       newBanner.sort = total + 1;
       const row = await this.banner.save(newBanner);
-      console.log(row.id);
       if (row.id != 0) {
         return '添加成功';
       } else {
@@ -61,7 +60,6 @@ export class BannerService {
   //修改广告轮播图顺序
   async updateBannerSort(body) {
     const { id, sort } = body;
-    console.log(id, sort);
 
     const row = await this.banner.update(id, { sort: sort });
     if (row.affected != 0) {

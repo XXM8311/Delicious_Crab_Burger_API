@@ -11,13 +11,17 @@ import {
 import { BannerService } from './banner.service';
 import { addBannerDto } from './dto/addBanner.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller({
   path: 'banner',
   version: '1',
 })
 export class BannerController {
-  constructor(private readonly bannerService: BannerService) {}
+  constructor(
+    private readonly bannerService: BannerService,
+    private readonly configService: ConfigService,
+  ) {}
   @Get()
   getBanner() {
     return this.bannerService.getBanner();
@@ -41,10 +45,11 @@ export class BannerController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('banner'))
   uploadBanner(@UploadedFile() banner) {
+    const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8311';
     return {
       msg: '上传成功',
       data: {
-        url: `http://127.0.0.1:8311/image/${banner.filename}`,
+        url: `${baseUrl}/image/${banner.filename}`,
       },
     };
   }

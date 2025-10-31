@@ -14,6 +14,7 @@ import { CreateMealDto } from './dto/createMeal.dto';
 import { JwtService } from '@nestjs/jwt';
 import { upateMealDto } from './dto/upateMeal.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller({
   path: 'meals',
@@ -23,6 +24,7 @@ export class MealsController {
   constructor(
     private readonly mealsService: MealsService,
     private readonly JwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post()
@@ -52,10 +54,11 @@ export class MealsController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadForRole(@UploadedFile() file) {
+    const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8311';
     return {
       msg: '上传成功',
       data: {
-        url: `http://127.0.0.1:8311/image/${file.filename}`,
+        url: `${baseUrl}/image/${file.filename}`,
       },
     };
   }

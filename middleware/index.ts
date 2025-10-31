@@ -3,7 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 @Injectable()
 export class LogInterceptor implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    console.log('请求路径', req.url);
+    // 日志记录 - 生产环境应使用专业日志系统（如Winston、Pino）
+    // 避免记录包含敏感信息的完整URL
     next();
   }
 }

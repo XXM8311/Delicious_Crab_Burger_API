@@ -16,6 +16,7 @@ import { updateRolePasswordDto } from './dto/updateRolePassword.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateRoleInfoDto } from './dto/updateRoleInfo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller({
   path: 'role',
@@ -25,6 +26,7 @@ export class RoleController {
   constructor(
     private readonly roleService: RoleService,
     private readonly JwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
   //注册
   @Post('register')
@@ -90,10 +92,11 @@ export class RoleController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadForRole(@UploadedFile() file) {
+    const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8311';
     return {
       msg: '上传成功',
       data: {
-        url: `http://127.0.0.1:8311/image/${file.filename}`,
+        url: `${baseUrl}/image/${file.filename}`,
       },
     };
   }

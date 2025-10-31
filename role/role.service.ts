@@ -128,10 +128,7 @@ export class RoleService {
 
   //修改用户信息
   async updateRoleInfo(UpdateRoleInfoDto: UpdateRoleInfoDto, id: number) {
-    console.log(id);
-
     const { nickName, avatarUrl } = UpdateRoleInfoDto;
-    console.log(avatarUrl);
 
     const role = await this.roleRepository.findOne({
       where: { id },
@@ -142,7 +139,6 @@ export class RoleService {
     const roleConfig = await this.roleConfigRepository.findOne({
       where: { role },
     });
-    console.log(roleConfig);
 
     if (roleConfig === null) {
       const newRoleConfig = new RoleConfig();
@@ -165,7 +161,6 @@ export class RoleService {
         { role: role },
         roleConfig,
       );
-      console.log(row);
 
       if (row.affected !== 0) {
         return '修改成功';

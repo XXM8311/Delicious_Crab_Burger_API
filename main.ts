@@ -30,6 +30,7 @@ async function bootstrap() {
       cookie: { httpOnly: true, maxAge: 1000 * 60 * 5 }, //过期时间
     }),
   );
-  await app.listen(8311);
+  const port = configService.get('PORT') || 8311;
+  await app.listen(port);
 }
 bootstrap();

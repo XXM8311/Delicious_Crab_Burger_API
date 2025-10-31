@@ -15,13 +15,14 @@ export class ResponseIntercept<T> implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<Data<T>> {
     const ctx = context.switchToHttp();
     const req = ctx.getRequest<Request>();
+    const path = req.url.split('?')[0];
     return next.handle().pipe(
       map((data) => {
         return {
           data,
           msg: '请求成功',
           time: new Date().toLocaleString(),
-          url: req.url,
+          path: path,
         };
       }),
     );
