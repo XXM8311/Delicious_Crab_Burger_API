@@ -25,6 +25,7 @@
 - **TypeScript 5.x** - 类型安全的 JavaScript
 - **TypeORM 0.3.x** - ORM 框架
 - **MySQL** - 关系型数据库
+- - **Redis** - 非关系型数据库
 
 ### 主要依赖
 - **@nestjs/jwt** - JWT 认证
